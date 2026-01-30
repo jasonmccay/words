@@ -4,6 +4,12 @@ export default {
 	plugins: [require("@tailwindcss/typography")],
 	theme: {
 		extend: {
+			fontFamily: {
+				sans: ['"Crimson Pro"', 'system-ui', 'sans-serif'],
+			},
+			fontWeight: {
+				normal: '300',
+			},
 			typography: () => ({
 				DEFAULT: {
 					css: {
