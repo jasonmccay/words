@@ -38,9 +38,9 @@
 			--color-quote: oklch(94.8% 0.106 136.49);
 		}
 	}
-
-	p {
-		@apply text-xl;
+	
+	p,div, li {
+		@apply text-2xl;
 	}
 
 	:target {
