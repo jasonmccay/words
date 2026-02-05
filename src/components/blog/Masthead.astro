@@ -37,11 +37,11 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 	{data.title}
 </h1>
 <div class="flex flex-wrap items-center gap-x-3 gap-y-2">
-	<p class="font-light">
+	<p class="text-xl font-light">
 		<FormattedDate date={data.publishDate} dateTimeOptions={dateTimeOptions} /> /{" "}
 		{readingTime}
 	</p>
-	<p class="font-light">
+	<p class="text-xl font-light">
 		{
 			data.updatedDate && (
 				<span class="bg-quote/5 text-quote rounded-lg px-2 py-1">
@@ -54,7 +54,7 @@ const dateTimeOptions: Intl.DateTimeFormatOptions = {
 </div>
 {
 	!!data.tags?.length && (
-		<div class="mt-2">
+		<div class="mt-2 text-xl font-light">
 			<svg
 				aria-hidden="true"
 				class="inline-block h-6 w-6"
