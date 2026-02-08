@@ -1,9 +1,9 @@
 .admonition {
 	--admonition-color: var(--tw-prose-quotes);
-	@apply border-s-2 border-(--admonition-color) py-4 ps-4;
+	@apply border-s-2 border-(--admonition-color) py-4 ps-4 pe-4;
 
 	.admonition-title {
-		@apply my-0! flex items-center gap-2 text-base font-bold text-(--admonition-color) capitalize;
+		@apply my-0! flex items-center gap-2 text-2xl font-bold text-(--admonition-color) capitalize;
 		&:before {
 			@apply inline-block h-4 w-4 shrink-0 overflow-visible bg-(--admonition-color) align-middle content-[''];
 			mask-size: contain;
@@ -13,6 +13,9 @@
 	}
 
 	.admonition-content {
+		> :first-child {
+			@apply mt-2!;
+		}
 		> :last-child {
 			@apply mb-0!;
 		}

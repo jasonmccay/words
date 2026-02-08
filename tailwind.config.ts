@@ -28,11 +28,30 @@ export default {
 						code: {
 							border: "1px dotted #666",
 							borderRadius: "2px",
+							fontSize: "0.7em",
+							fontWeight: "400",
+							backgroundColor: "oklch(from var(--color-global-bg) calc(l - 0.05) c h)",
+							padding: "0.125em 0.25em",
 						},
 						kbd: {
 							"&:where([data-theme='dark'], [data-theme='dark'] *)": {
 								background: "var(--color-global-text)",
 							},
+						},
+						h2: {
+							fontSize: "var(--text-3xl)",
+						},
+						h3: {
+							fontSize: "var(--text-2xl)",
+						},
+						h4: {
+							fontSize: "var(--text-xl)", 
+						},
+						h5: {
+							fontSize: "var(--text-lg)",
+						},
+						h6: {
+							fontSize: "var(--text-lg)",
 						},
 						hr: {
 							borderTopStyle: "dashed",
