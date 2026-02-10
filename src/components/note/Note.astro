@@ -16,7 +16,7 @@ const { Content } = await render(note);
 	class:list={[isPreview && "bg-global-text/5 inline-grid rounded-md px-4 py-3"]}
 	data-pagefind-body={isPreview ? false : true}
 >
-	<Tag class="title" class:list={{ "text-base": isPreview }}>
+	<Tag class="title" class:list={{ "text-2xl": isPreview }}>
 		{
 			isPreview ? (
 				<a class="cactus-link" href={`/notes/${note.id}/`}>
@@ -28,12 +28,15 @@ const { Content } = await render(note);
 		}
 	</Tag>
 	<FormattedDate
+		class="text-xl"
 		dateTimeOptions={{
 			hour: "2-digit",
 			minute: "2-digit",
 			year: "2-digit",
 			month: "2-digit",
 			day: "2-digit",
+			timeZone: "America/Chicago",
+			hour12: true,
 		}}
 		date={note.data.publishDate}
 	/>

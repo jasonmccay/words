@@ -6,7 +6,7 @@ export const siteConfig: SiteConfig = {
 	author: "Jason McCay",
 	// Date.prototype.toLocaleDateString() parameters, found in src/utils/date.ts.
 	date: {
-		locale: "en-GB",
+		locale: "en-US",
 		options: {
 			day: "numeric",
 			month: "short",
@@ -16,9 +16,9 @@ export const siteConfig: SiteConfig = {
 	// Used as the default description meta property and webmanifest description
 	description: "Bits and pieces of the life of Jason McCay, in no particular order.",
 	// HTML lang property, found in src/layouts/Base.astro L:18 & astro.config.ts L:48
-	lang: "en-GB",
+	lang: "en-US",
 	// Meta property, found in src/components/BaseHead.astro L:42
-	ogLocale: "en_GB",
+	ogLocale: "en_US",
 	/* 
 		- Used to construct the meta title property found in src/components/BaseHead.astro L:11 
 		- The webmanifest name found in astro.config.ts L:42
