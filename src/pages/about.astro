@@ -1,14 +1,20 @@
 ---
 import PageLayout from "@/layouts/Base.astro";
+import jasonPlush from "./jason-plush.png";
 
 const meta = {
-	description: "I'm a starter theme for Astro.build",
+	description: "I'm Jason McCay. An entrepreneur and engineer that loves to build things.",
 	title: "About",
 };
 ---
 
 <PageLayout meta={meta}>
 	<h1 class="title mb-12">Hello</h1>
+	<img
+		src={jasonPlush.src}
+		alt="Jason McCay plushie"
+		class="border-global-text/20 mb-4 w-1/2 rounded-lg border"
+	/>
 	<div class="prose prose-sm prose-cactus max-w-none">
 		<p>
 			I'm a software engineer perpetually curious about how people interact with technology and
