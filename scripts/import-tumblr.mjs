@@ -206,67 +206,52 @@ function yamlStr(str) {
 function parsePosts(html) {
 	const posts = [];
 
-	// Find individual post blocks.
-	// Tumblr wraps posts in <article> or identifiable <div> containers.
-	// We'll look for the pattern: a linked image followed by a caption,
-	// then a permalink date link.
+	// Tumblr wraps each post in <article class="photo ... " data-post-id="12345">
+	// Split the HTML on <article boundaries to isolate each post cleanly.
+	const articleChunks = html.split(/<article\s/);
 
-	// Strategy: find all permalink links like:
-	//   <a href="https://jasonmccay.com/post/97419682203/well-everyday-cant-be-a-sunny-day-at-the-beach" title="11 years ago">
-	// and extract the surrounding post context.
+	for (const rawChunk of articleChunks) {
+		// Only handle photo posts (skip text, quote, link, etc. post types)
+		if (!rawChunk.includes('class="photo')) continue;
 
-	// Split HTML into rough "post" sections by permalink anchor
-	const permaPattern =
-		/href="(https:\/\/jasonmccay\.com\/post\/(\d+)\/([^"]+))"[^>]*title="([^"]+)"/g;
+		const chunk = "<article " + rawChunk;
 
-	const permalinks = [];
-	for (;;) {
-		const match = permaPattern.exec(html);
-		if (match === null) break;
-		permalinks.push({
-			url: match[1],
-			postId: match[2],
-			urlSlug: match[3],
-			title: match[4], // e.g. "11 years ago"
-			index: match.index,
-		});
-	}
+		// ── Post ID ────────────────────────────────────────────
+		const postIdMatch = chunk.match(/data-post-id="(\d+)"/);
+		if (!postIdMatch) continue;
+		const postId = postIdMatch[1];
 
-	// For each permalink, look backwards for the image and caption,
-	// and extract tags.
-	for (let i = 0; i < permalinks.length; i++) {
-		const { postId, urlSlug, index } = permalinks[i];
-
-		// Slice the HTML chunk for this post: from the previous permalink to this one
-		const chunkStart = i === 0 ? 0 : permalinks[i - 1].index;
-		const chunkEnd = index + 200; // a bit past the date link
-		const chunk = html.slice(chunkStart, chunkEnd);
-
-		// ── Image ──────────────────────────────────────────────
-		// Look for <img ... src="https://64.media.tumblr.com/...">
-		const imgMatch = chunk.match(
-			/src="(https:\/\/(?:64\.media\.tumblr\.com|[^"]*tumblr[^"]*?)\/[^"]+_(?:640|500|400|1280)\.[a-z]+)"/i,
-		);
-		// Also try broader pattern for any tumblr CDN image
-		const imgMatchBroad = chunk.match(/src="(https:\/\/64\.media\.tumblr\.com\/[^"]+)"/i);
-
-		const imageUrl = (imgMatch && imgMatch[1]) || (imgMatchBroad && imgMatchBroad[1]);
-
-		if (!imageUrl) {
-			// Skip non-photo posts (text-only, etc.)
-			continue;
+		// ── Image URL ─────────────────────────────────────────
+		// Look for the highest-res version: _1280 > _640 > _500 > _400
+		// Prefer images with size suffix; exclude avatar GIFs
+		const imgPattern = /src="(https:\/\/64\.media\.tumblr\.com\/[^"]+\.(?:jpg|jpeg|png|gif))"/gi;
+		let bestImage = null;
+		for (;;) {
+			const m = imgPattern.exec(chunk);
+			if (m === null) break;
+			const url = m[1];
+			// Skip avatar images (they have "avatar" in the filename)
+			if (url.includes("avatar")) continue;
+			// Prefer higher resolution
+			if (!bestImage) {
+				bestImage = url;
+			} else if (url.includes("_1280") || (!bestImage.includes("_1280") && url.includes("_640"))) {
+				bestImage = url;
+			}
 		}
 
-		// ── Alt / Caption ──────────────────────────────────────
-		// The alt attribute on the img tag often contains the caption
+		if (!bestImage) continue; // No image found — skip
+
+		// ── Caption ────────────────────────────────────────────
+		// The alt attribute on the img is usually the caption text
 		const altMatch = chunk.match(/alt="([^"]+)"/);
-		// The paragraph text after the image often IS the caption
-		// Look for text content between the </a> (after the image link) and the next tag
-		const captionMatch = chunk.match(/<\/a>\s*\n\s*([\s\S]+?)\n\s*\[/);
+
+		// Also try the URL slug from the permalink as a fallback
+		const slugMatch = chunk.match(/href="https:\/\/jasonmccay\.com\/post\/\d+\/([^"]+)"/);
+		const urlSlug = slugMatch ? slugMatch[1] : postId;
 
 		let caption =
-			(altMatch && altMatch[1]) ||
-			(captionMatch && captionMatch[1].trim()) ||
+			(altMatch && altMatch[1] && !altMatch[1].startsWith("jasonmccay") ? altMatch[1] : null) ||
 			urlSlug.replace(/-/g, " ");
 
 		// Clean up caption: remove HTML tags, decode entities
@@ -278,18 +263,16 @@ function parsePosts(html) {
 			.replace(/&quot;/g, '"')
 			.replace(/&#039;/g, "'")
 			.replace(/&apos;/g, "'")
-			.replace(/&rsquo;/g, "'")
-			.replace(/&lsquo;/g, "'")
-			.replace(/&rdquo;/g, '"')
-			.replace(/&ldquo;/g, '"')
-			.replace(/&hellip;/g, "…")
+			.replace(/&rsquo;/g, "\u2019")
+			.replace(/&lsquo;/g, "\u2018")
+			.replace(/&rdquo;/g, "\u201d")
+			.replace(/&ldquo;/g, "\u201c")
+			.replace(/&hellip;/g, "\u2026")
 			.replace(/&nbsp;/g, " ")
 			.trim();
 
 		// ── Date ───────────────────────────────────────────────
-		// The date is the text content of the permalink's parent <a> element,
-		// but it shows as "Sep 13th, 2014" format in another nearby link.
-		// Actually on Tumblr, the date link has: >Sep 13th, 2014</a>
+		// Tumblr date links look like: >Sep 13th, 2014</a>
 		const dateMatch = chunk.match(
 			/>(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d+(?:st|nd|rd|th),\s+\d{4}</,
 		);
@@ -308,14 +291,14 @@ function parsePosts(html) {
 		}
 
 		// ── Image extension ────────────────────────────────────
-		const extMatch = imageUrl.match(/\.([a-z]+)(?:\?|$)/i);
-		const ext = extMatch ? extMatch[1].toLowerCase() : "jpg";
+		const extMatch = bestImage.match(/\.(jpg|jpeg|png|gif)(?:\?|$)/i);
+		const ext = extMatch ? extMatch[1].toLowerCase().replace("jpeg", "jpg") : "jpg";
 
 		posts.push({
 			postId,
 			urlSlug,
 			caption,
-			imageUrl,
+			imageUrl: bestImage,
 			imageExt: ext,
 			publishDate,
 			tags,
@@ -360,8 +343,12 @@ async function main() {
 			break;
 		}
 
+		// Extract total page count for progress display
+		const totalPagesMatch = html.match(/data-total-pages="(\d+)"/);
+		const totalPages = totalPagesMatch ? Number.parseInt(totalPagesMatch[1], 10) : "?";
+
 		const posts = parsePosts(html);
-		console.log(`  Found ${posts.length} photo post(s) on page ${page}`);
+		console.log(`  Found ${posts.length} photo post(s) on page ${page} of ${totalPages}`);
 
 		for (const post of posts) {
 			const { postId, caption, imageUrl, imageExt, publishDate, tags } = post;
@@ -442,8 +429,12 @@ ${caption}
 		}
 
 		// Check for next page
-		if (!hasNextPage(html) || page >= END_PAGE) {
-			console.log(`\n  No more pages found. Stopping at page ${page}.`);
+		if (!hasNextPage(html)) {
+			console.log(`\n  Reached the last page (${page}). Done!`);
+			break;
+		}
+		if (page >= END_PAGE) {
+			console.log(`\n  Reached END_PAGE limit (${page}). Stopping.`);
 			break;
 		}
 
