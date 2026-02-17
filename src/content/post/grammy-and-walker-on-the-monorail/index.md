@@ -1,0 +1,11 @@
+---
+title: Grammy and Walker on the Monorail
+description: Grammy and Walker on the Monorail
+publishDate: "29 May 2008"
+tags: ["photos"]
+coverImage:
+  src: "./cover.jpg"
+  alt: Grammy and Walker on the Monorail
+---
+
+Grammy and Walker on the Monorail
