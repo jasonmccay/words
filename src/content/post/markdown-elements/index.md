@@ -18,7 +18,6 @@ pinned: true
 ###### This is a H6 Heading
 
 ## Horizontal Rules
-
 ---
 
 ---

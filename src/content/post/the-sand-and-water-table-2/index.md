@@ -3,9 +3,8 @@ title: The Sand and Water Table
 description: The Sand and Water Table
 publishDate: "09 Apr 2008"
 tags: ["photos"]
-coverImage:
-  src: "./cover.jpg"
-  alt: The Sand and Water Table
 ---
 
 The Sand and Water Table
+
+![The Sand and Water Table](./cover.jpg)
