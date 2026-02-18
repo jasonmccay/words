@@ -1,0 +1,16 @@
+---
+title: The Boys First Trip to Auburn
+description: The Boys First Trip to Auburn
+publishDate: "18 Jul 2008"
+tags: ["photos"]
+---
+
+import PhotoGallery from "@/components/blog/PhotoGallery.astro";
+
+export const images = import.meta.glob("./*.{jpg,jpeg,png,gif,webp}", {
+	eager: true,
+});
+
+The boys' first trip to Auburn.
+
+<PhotoGallery images={images} />
