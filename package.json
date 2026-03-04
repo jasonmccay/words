@@ -12,7 +12,8 @@
     "preview": "astro preview",
     "check": "astro check && biome check",
     "lint": "biome check --write",
-    "format": "prettier -w . --cache"
+    "format": "prettier -w . --cache",
+    "cp": "node scripts/cp.mjs"
   },
   "dependencies": {
     "@astrojs/markdown-remark": "6.3.10",
