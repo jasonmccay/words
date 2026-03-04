@@ -1,31 +1,30 @@
+import { createInterface } from "node:readline/promises";
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const args = process.argv.slice(2);
+const rl = createInterface({ input: process.stdin, output: process.stdout });
 
-function usage() {
-	console.error('Usage: pnpm cp "Post Title" [-t tag1,tag2] [-s "Description"]');
+const content = await rl.question("Post content: ");
+if (!content.trim()) {
+	console.error("Error: post content is required.");
 	process.exit(1);
 }
 
-// Parse args
-let title = null;
-let tags = [];
-let description = null;
-
-for (let i = 0; i < args.length; i++) {
-	if (args[i] === "-t" && args[i + 1]) {
-		tags = args[++i].split(",").map((t) => t.trim());
-	} else if (args[i] === "-s" && args[i + 1]) {
-		description = args[++i];
-	} else if (!title) {
-		title = args[i];
-	}
+const title = await rl.question("Title: ");
+if (!title.trim()) {
+	console.error("Error: title is required.");
+	process.exit(1);
 }
 
-if (!title) usage();
+const tagsInput = await rl.question("Tags (comma-separated): ");
+const tags = tagsInput
+	.split(",")
+	.map((t) => t.trim())
+	.filter(Boolean);
 
-if (!description) description = title;
+rl.close();
+
+const description = title;
 
 // Generate slug: lowercase, replace non-alphanumeric with hyphens, collapse/trim
 const slug = title
@@ -81,6 +80,6 @@ if (existsSync(dir)) {
 }
 
 mkdirSync(dir, { recursive: true });
-writeFileSync(join(dir, "index.md"), frontmatter);
+writeFileSync(join(dir, "index.md"), frontmatter + content + "\n");
 
 console.log(`Created: src/content/post/${slug}/index.md`);
